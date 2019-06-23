@@ -4,26 +4,9 @@
     "dockerCompose": {
         "version": "3.3",
         "services": {
-            "$$cap_appname-db": {
-                "image": "postgres:$$cap_postgres_version",
-                "notExposeAsWebApp": "true",
-                "volumes": [
-                    "$$cap_appname-db-data:/var/lib/postgresql/data"
-                ],
-                "restart": "always",
-                "environment": {
-                    "POSTGRES_USER": "sonarqube",
-                    "POSTGRES_PASSWORD": "$$cap_pg_pass",
-                    "POSTGRES_DB": "sonarqube",
-                    "POSTGRES_INITDB_ARGS": "$$cap_pg_initdb_args"
-                }
-            },
             "$$cap_appname": {
                 "image": "sonarqube:$$cap_sonar_version",
                 "containerHttpPort": "9000",
-                "depends_on": [
-                    "$$cap_appname-db"
-                ],
                 "volumes": [
                     "$$cap_appname-conf:/opt/sonarqube/conf",
                     "$$cap_appname-data:/opt/sonarqube/data",
@@ -32,9 +15,9 @@
                 ],
                 "restart": "always",
                 "environment": {
-                    "sonar.jdbc.username": "sonarqube",
-                    "sonar.jdbc.password": "$$cap_pg_pass",
-                    "sonar.jdbc.url": "jdbc:postgresql://srv-captain--$$cap_appname-db/sonarqube"
+                    "sonar.jdbc.username": "$$cap_post_username",
+                    "sonar.jdbc.password": "$$cap_post_password",
+                    "sonar.jdbc.url": "jdbc:postgresql://$$cap_post_host/$$cap_post_db"
                 }
             }
         }
@@ -45,13 +28,6 @@
     },
     "variables": [
         {
-            "id": "$$cap_postgres_version",
-            "label": "Postgres Version",
-            "defaultValue": "9.6",
-            "description": "Checkout their docker page for the valid tags https://hub.docker.com/r/library/postgres/tags/",
-            "validRegex": "/^([^\\s^\\/])+$/"
-        },
-        {
             "id": "$$cap_sonar_version",
             "label": "Sonarqube Version",
             "defaultValue": "7.7-community",
@@ -59,16 +35,28 @@
             "validRegex": "/^([^\\s^\\/])+$/"
         },
         {
-            "id": "$$cap_pg_pass",
+            "id": "$$cap_post_username",
+            "label": "Postgres username",
+            "description": "",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_post_password",
             "label": "Postgres Password",
             "description": "",
             "validRegex": "/.{1,}/"
         },
         {
-            "id": "$$cap_pg_initdb_args",
-            "label": "OPTIONAL: Arguments for 'postgres initdb'",
-            "description": "For example, --data-checksums",
-            "validRegex": "/.{0,}/"
+            "id": "$$cap_post_host",
+            "label": "Postgres host",
+            "description": "",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_post_db",
+            "label": "Postgres db",
+            "description": "",
+            "validRegex": "/.{1,}/"
         }
     ]
 }
